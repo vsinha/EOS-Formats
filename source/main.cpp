@@ -1,13 +1,10 @@
 #include "main.h"
 
-
-
-int main(int argc, char* argv [])
+int main(int argc, char *argv[])
 {
-	
+
 	clJobSliceFile sliFile;
 	clSliceData sliceData;
-
 
 	if (argc > 1)
 	{
@@ -17,8 +14,6 @@ int main(int argc, char* argv [])
 	{
 		sliFile.readFromFile("D:\\Entwicklung\\VC\\ThermoBoxEmgu\\_test_files_\\ScanV_Micro.Job");
 	}
-
-
 
 	sliFile.readSliceData(&sliceData, 0, 0);
 
@@ -31,17 +26,11 @@ int main(int argc, char* argv [])
 		int objectCount = sliceData.getObjectCount(part);
 		for (int object = 0; object < objectCount; object++)
 		{
-			//float * points = sliceData.getObjectPointsTransformed(part, object, TransMatrix);
+			// float * points = sliceData.getObjectPointsTransformed(part, object, TransMatrix);
 
-
-			//sliceData.drawRasteredObject(&imgFilled, &imgPolyLine, part, object, TransMatrix, object, w, h);
+			// sliceData.drawRasteredObject(&imgFilled, &imgPolyLine, part, object, TransMatrix, object, w, h);
 		}
 	}
 
 	system("pause");
 }
-
-
-
-
-

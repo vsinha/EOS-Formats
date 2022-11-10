@@ -1,13 +1,17 @@
 #include "clSliceData.h"
 
 //- Math macros -//
-#define ABS(a) (((a)>=0)?(a):(-(a)))
-#define ROUND(x) floor((x)+0.5)
-#define ROUND_INT(x) (int)(floor((x)+0.5))
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define SWAP(a, b)	{ int swaptmp = (b); (b) = (a); (a) = swaptmp; }
-
+#define ABS(a) (((a) >= 0) ? (a) : (-(a)))
+#define ROUND(x) floor((x) + 0.5)
+#define ROUND_INT(x) (int)(floor((x) + 0.5))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define SWAP(a, b)         \
+	{                      \
+		int swaptmp = (b); \
+		(b) = (a);         \
+		(a) = swaptmp;     \
+	}
 
 //---------------------------------------------------//
 clSliceData::clSliceData()
@@ -24,7 +28,8 @@ clSliceData::clSliceData()
 clSliceData::~clSliceData()
 {
 	m_TransformedPointsLenght = 0;
-	if (m_TransformedPoints != NULL) delete[]m_TransformedPoints;
+	if (m_TransformedPoints != NULL)
+		delete[] m_TransformedPoints;
 
 	if (m_parts != NULL)
 	{
@@ -34,26 +39,25 @@ clSliceData::~clSliceData()
 			{
 				for (int o = m_parts[p].objectLenght - 1; o >= 0; o--)
 				{
-					delete [] m_parts[p].objects[o].points;
+					delete[] m_parts[p].objects[o].points;
 
 					m_parts[p].objects[o].points = NULL;
 					m_parts[p].objects[o].pointLenght = 0;
 				}
 
-				delete [] m_parts[p].objects;
+				delete[] m_parts[p].objects;
 			}
 
 			m_parts[p].objects = NULL;
 			m_parts[p].objectLenght = 0;
 		}
 
-		delete [] m_parts;
+		delete[] m_parts;
 	}
 
 	m_partCount = 0;
 	m_partLenght = 0;
 	m_parts = NULL;
-	
 }
 
 //---------------------------------------------------//
@@ -65,62 +69,69 @@ int clSliceData::getPartCount()
 //---------------------------------------------------//
 int clSliceData::getObjectCount(int partIndex)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return 0;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return 0;
 	return m_parts[partIndex].objectCount;
 }
 
 //---------------------------------------------------//
 bool clSliceData::isPolygon(int partIndex, int objectIndex)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return false;
-	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount)) return false;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return false;
+	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount))
+		return false;
 	return !m_parts[partIndex].objects[objectIndex].isHatch;
 }
-
 
 //---------------------------------------------------//
 bool clSliceData::isHatch(int partIndex, int objectIndex)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return false;
-	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount)) return false;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return false;
+	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount))
+		return false;
 	return m_parts[partIndex].objects[objectIndex].isHatch;
 }
 
-
 //---------------------------------------------------//
-float * clSliceData::getObjectPoints(int partIndex, int objectIndex)
+float *clSliceData::getObjectPoints(int partIndex, int objectIndex)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return NULL;
-	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount)) return NULL;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return NULL;
+	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount))
+		return NULL;
 	return m_parts[partIndex].objects[objectIndex].points;
 }
-
 
 //---------------------------------------------------//
 void clSliceData::PartMatrixMult(int partIndex, tyMatrix matrix)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return;
 
 	MatrixMult(&m_parts[partIndex].transformMatrix, matrix, m_parts[partIndex].transformMatrix);
 }
 
-
 //---------------------------------------------------//
-float * clSliceData::getObjectPointsTransformed(int partIndex, int objectIndex, tyMatrix matrix)
+float *clSliceData::getObjectPointsTransformed(int partIndex, int objectIndex, tyMatrix matrix)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return NULL;
-	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount)) return NULL;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return NULL;
+	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount))
+		return NULL;
 
-	float * p = m_parts[partIndex].objects[objectIndex].points;
+	float *p = m_parts[partIndex].objects[objectIndex].points;
 	int count = m_parts[partIndex].objects[objectIndex].pointCount;
-	
+
 	//- create buffer
 	if (m_TransformedPointsLenght < count)
 	{
 		m_TransformedPointsLenght = count + 32;
-		if (m_TransformedPoints != NULL) delete []m_TransformedPoints;
+		if (m_TransformedPoints != NULL)
+			delete[] m_TransformedPoints;
 
-		m_TransformedPoints = new float[m_TransformedPointsLenght*2];
+		m_TransformedPoints = new float[m_TransformedPointsLenght * 2];
 	}
 
 	//- get transformations matrix
@@ -133,7 +144,6 @@ float * clSliceData::getObjectPointsTransformed(int partIndex, int objectIndex, 
 	float m21 = newMatrix.m21;
 	float m22 = newMatrix.m22;
 	float m23 = newMatrix.m23;
-
 
 	float *pPointOut = m_TransformedPoints;
 	float *pPointIn = p;
@@ -154,15 +164,15 @@ float * clSliceData::getObjectPointsTransformed(int partIndex, int objectIndex, 
 	return m_TransformedPoints;
 }
 
-
 //---------------------------------------------------//
-bool clSliceData::drawRasteredObject(int *outFilledPicture, int * outLinePicture, int partIndex, tyMatrix matrix, int color, int width, int height)
+bool clSliceData::drawRasteredObject(int *outFilledPicture, int *outLinePicture, int partIndex, tyMatrix matrix, int color, int width, int height)
 {
-	if ((partIndex < 0) || (partIndex >= m_partCount)) return false;
-	if ((outFilledPicture == NULL) && (outLinePicture == NULL)) return false;
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return false;
+	if ((outFilledPicture == NULL) && (outLinePicture == NULL))
+		return false;
 
 	int objectCount = m_parts[partIndex].objectCount;
-
 
 	//---------------------------------
 	//- First draw all poly-lines
@@ -171,14 +181,15 @@ bool clSliceData::drawRasteredObject(int *outFilledPicture, int * outLinePicture
 	for (int objectIndex = 0; objectIndex < objectCount; objectIndex++)
 	{
 		int PointCount = m_parts[partIndex].objects[objectIndex].pointCount;
-		if (PointCount < 1) continue;
+		if (PointCount < 1)
+			continue;
 
 		//- disable output for Hatches
 		if (!m_parts[partIndex].objects[objectIndex].isHatch)
 		{
 			//- transform data
-			float * points = getObjectPointsTransformed(partIndex, objectIndex, matrix);
-			float * pPoint = points;
+			float *points = getObjectPointsTransformed(partIndex, objectIndex, matrix);
+			float *pPoint = points;
 
 			float x1;
 			float x2;
@@ -194,10 +205,12 @@ bool clSliceData::drawRasteredObject(int *outFilledPicture, int * outLinePicture
 				y2 = *pPoint++;
 
 				//- draw polygon line
-				if (outLinePicture != NULL) drawLine(outLinePicture, width, height, ROUND_INT(x1), ROUND_INT(y1), ROUND_INT(x2), ROUND_INT(y2), color);
+				if (outLinePicture != NULL)
+					drawLine(outLinePicture, width, height, ROUND_INT(x1), ROUND_INT(y1), ROUND_INT(x2), ROUND_INT(y2), color);
 
 				//- add points for add Edge flag algorithm
-				if (outFilledPicture != NULL) addEdgeflag(outFilledPicture, width, height, ROUND_INT(x1), ROUND_INT(y1), ROUND_INT(x2), ROUND_INT(y2), color);
+				if (outFilledPicture != NULL)
+					addEdgeflag(outFilledPicture, width, height, ROUND_INT(x1), ROUND_INT(y1), ROUND_INT(x2), ROUND_INT(y2), color);
 
 				x1 = x2;
 				y1 = y2;
@@ -206,28 +219,27 @@ bool clSliceData::drawRasteredObject(int *outFilledPicture, int * outLinePicture
 	}
 
 	//- fill Object
-	if (outFilledPicture != NULL) fillEdgePoly(outFilledPicture, width, height, color);
-	
-
+	if (outFilledPicture != NULL)
+		fillEdgePoly(outFilledPicture, width, height, color);
 
 	//---------------------------------
 	//- draw all hatches
-
 
 	//- do this for all Objects of this part
 	for (int objectIndex = 0; objectIndex < objectCount; objectIndex++)
 	{
 		int PointCount = m_parts[partIndex].objects[objectIndex].pointCount;
-		if (PointCount < 1) continue;
+		if (PointCount < 1)
+			continue;
 
 		//- only Hatches
 		if (m_parts[partIndex].objects[objectIndex].isHatch)
 		{
 			//- transform data
-			float * points = getObjectPointsTransformed(partIndex, objectIndex, matrix);
-			float * pPoint = points;
+			float *points = getObjectPointsTransformed(partIndex, objectIndex, matrix);
+			float *pPoint = points;
 
-			for (int i = (PointCount>>2); i > 0; i--)
+			for (int i = (PointCount >> 2); i > 0; i--)
 			{
 				float x1 = *pPoint++;
 				float y1 = *pPoint++;
@@ -235,27 +247,28 @@ bool clSliceData::drawRasteredObject(int *outFilledPicture, int * outLinePicture
 				float y2 = *pPoint++;
 
 				//- draw hatch lines
-				if (outLinePicture != NULL) drawLine(outLinePicture, width, height, (int)x1, (int)y1, (int)x2, (int)y2, color);
+				if (outLinePicture != NULL)
+					drawLine(outLinePicture, width, height, (int)x1, (int)y1, (int)x2, (int)y2, color);
 			}
 		}
 	}
 
-
 	return true;
 }
 
-
-
 //---------------------------------------------------//
-void clSliceData::IdentityMatrix(tyMatrix * dest)
+void clSliceData::IdentityMatrix(tyMatrix *dest)
 {
-	dest->m11 = 1; dest->m12 = 0; dest->m13 = 0;
-	dest->m21 = 0; dest->m22 = 1; dest->m23 = 0;
+	dest->m11 = 1;
+	dest->m12 = 0;
+	dest->m13 = 0;
+	dest->m21 = 0;
+	dest->m22 = 1;
+	dest->m23 = 0;
 }
 
-
 //---------------------------------------------------//
-void clSliceData::MatrixMult(tyMatrix * dest, tyMatrix A, tyMatrix B)
+void clSliceData::MatrixMult(tyMatrix *dest, tyMatrix A, tyMatrix B)
 {
 	dest->m11 = A.m11 * B.m11 + A.m12 * B.m21 + A.m13 * 0;
 	dest->m12 = A.m11 * B.m12 + A.m12 * B.m22 + A.m13 * 0;
@@ -276,7 +289,6 @@ bool clSliceData::clearParts(int AllocatePartCount)
 		m_parts[i].objectCount = 0;
 		memset(&m_parts[i].transformMatrix, 0, sizeof(m_parts[i].transformMatrix));
 
-
 		for (int j = 0; j < m_parts[i].objectLenght; j++)
 		{
 			m_parts[i].objects[j].pointCount = 0;
@@ -290,15 +302,14 @@ bool clSliceData::clearParts(int AllocatePartCount)
 	return true;
 }
 
-
 //---------------------------------------------------//
-bool clSliceData::createPart(int partIndex, float m11, float m12, float  m13, float  m21, float  m22, float  m23)
+bool clSliceData::createPart(int partIndex, float m11, float m12, float m13, float m21, float m22, float m23)
 {
 	//- increase buffer size
 	if (m_partLenght <= partIndex)
 	{
-		int newLenght = partIndex+1;
-		tyPart * newObj = new tyPart[newLenght];
+		int newLenght = partIndex + 1;
+		tyPart *newObj = new tyPart[newLenght];
 
 		//- copy old objects to new object
 		for (int i = 0; i < m_partLenght; i++)
@@ -315,7 +326,8 @@ bool clSliceData::createPart(int partIndex, float m11, float m12, float  m13, fl
 			memset(&newObj[i].transformMatrix, 0, sizeof(newObj[i].transformMatrix));
 		}
 
-		if (m_parts != NULL) delete [] m_parts;
+		if (m_parts != NULL)
+			delete[] m_parts;
 		m_parts = newObj;
 
 		m_partLenght = newLenght;
@@ -329,42 +341,38 @@ bool clSliceData::createPart(int partIndex, float m11, float m12, float  m13, fl
 	m_parts[partIndex].transformMatrix.m22 = m22;
 	m_parts[partIndex].transformMatrix.m23 = m23;
 
-
 	m_partCount = MAX(m_partCount, partIndex + 1);
 
 	return true;
 }
 
-
 //---------------------------------------------------//
-float * clSliceData::createPolygon(int partIndex, int pointCount)
+float *clSliceData::createPolygon(int partIndex, int pointCount)
 {
-	tyObject * newPoly = createNewObject(partIndex, pointCount);
+	tyObject *newPoly = createNewObject(partIndex, pointCount);
 
 	newPoly->isHatch = false;
 
 	return newPoly->points;
-
 }
 
-
 //---------------------------------------------------//
-float * clSliceData::createHatch(int partIndex, int lineCount)
+float *clSliceData::createHatch(int partIndex, int lineCount)
 {
-	tyObject * newPoly = createNewObject(partIndex, lineCount * 2);
+	tyObject *newPoly = createNewObject(partIndex, lineCount * 2);
 
 	newPoly->isHatch = true;
 
 	return newPoly->points;
 }
 
-
 //---------------------------------------------------//
-clSliceData::tyObject * clSliceData::createNewObject(int partIndex, int coordinatesCount)
+clSliceData::tyObject *clSliceData::createNewObject(int partIndex, int coordinatesCount)
 {
-	if (partIndex >= m_partCount) return NULL;
-	
-	tyPart * ob = &m_parts[partIndex];
+	if (partIndex >= m_partCount)
+		return NULL;
+
+	tyPart *ob = &m_parts[partIndex];
 
 	int chordCount = coordinatesCount;
 	int polyIndex = ob->objectCount;
@@ -372,7 +380,7 @@ clSliceData::tyObject * clSliceData::createNewObject(int partIndex, int coordina
 	if (ob->objectLenght <= polyIndex)
 	{
 		ob->objectLenght = polyIndex + 10;
-		tyObject * newPoly = new tyObject[ob->objectLenght];
+		tyObject *newPoly = new tyObject[ob->objectLenght];
 
 		//- copy old objects to new object
 		for (int i = 0; i < ob->objectCount; i++)
@@ -389,21 +397,23 @@ clSliceData::tyObject * clSliceData::createNewObject(int partIndex, int coordina
 			newPoly[i].pointLenght = 0;
 		}
 
-		if (ob->objects != NULL) delete[] ob->objects;
+		if (ob->objects != NULL)
+			delete[] ob->objects;
 		ob->objects = newPoly;
 	}
-	
-	m_parts[partIndex].objectCount = polyIndex+1;
+
+	m_parts[partIndex].objectCount = polyIndex + 1;
 
 	//- prepare new polyline
-	tyObject * newPoly = &ob->objects[polyIndex];
+	tyObject *newPoly = &ob->objects[polyIndex];
 	newPoly->isHatch = false;
-	
+
 	if (newPoly->pointLenght < chordCount)
 	{
 		newPoly->pointLenght = chordCount + 32;
-		if (newPoly->points != NULL) delete [] newPoly->points;
-		newPoly->points = new float[newPoly->pointLenght*2];
+		if (newPoly->points != NULL)
+			delete[] newPoly->points;
+		newPoly->points = new float[newPoly->pointLenght * 2];
 	}
 
 	newPoly->pointCount = chordCount;
@@ -411,24 +421,26 @@ clSliceData::tyObject * clSliceData::createNewObject(int partIndex, int coordina
 	return newPoly;
 }
 
-
-
 //-------------------------------------------------------//
-int clSliceData::drawLine(int * DataDest, int width, int height, int x1, int y1, int x2, int y2, int color)
+int clSliceData::drawLine(int *DataDest, int width, int height, int x1, int y1, int x2, int y2, int color)
 {
-	if (DataDest == 0) return -1;
+	if (DataDest == 0)
+		return -1;
 
 	//- Ignore lines out of the [DataDest]
-	if (((x1 < 0) && (x2 < 0)) || ((y1 < 0) && (y2 < 0))) return 0;
-	if (((x1 >= width) && (x2 >= width)) || ((y1 >= height) && (y2 >= height))) return 0;
+	if (((x1 < 0) && (x2 < 0)) || ((y1 < 0) && (y2 < 0)))
+		return 0;
+	if (((x1 >= width) && (x2 >= width)) || ((y1 >= height) && (y2 >= height)))
+		return 0;
 
-	//- ignore short lines 
+	//- ignore short lines
 	int abs_w = ABS(x2 - x1);
 	int abs_h = ABS(y2 - y1);
 
-	if ((abs_w == 0) && (abs_h == 0)) return -6;
-	
-	int pixelCount = width*height;
+	if ((abs_w == 0) && (abs_h == 0))
+		return -6;
+
+	int pixelCount = width * height;
 
 	if (abs_w > abs_h) //- this is a horizontal line
 	{
@@ -438,29 +450,27 @@ int clSliceData::drawLine(int * DataDest, int width, int height, int x1, int y1,
 			SWAP(y1, y2);
 		}
 
-		double d = (double) (y2 - y1) / (x2 - x1); //- Slope
+		double d = (double)(y2 - y1) / (x2 - x1); //- Slope
 
 		int tmpX = x1;
-		double currentY = (double) y1;
+		double currentY = (double)y1;
 
-		for (int i = abs_w; i >= 0 ; i--)
+		for (int i = abs_w; i >= 0; i--)
 		{
 			int index = ((int)ROUND(currentY)) * width + tmpX;
 
 			if ((index >= 0) && (index < pixelCount))
-			{			
+			{
 				//-- DataDest[tmpX,tmpY]
-				if ((tmpX > 0) && (tmpX < width)) 
+				if ((tmpX > 0) && (tmpX < width))
 					*(DataDest + index) = color;
 			}
 
 			tmpX++;
 			currentY += d;
 		}
-		
-
 	}
-	else  //- this is a vertical line
+	else //- this is a vertical line
 	{
 		if (y2 < y1)
 		{
@@ -468,7 +478,7 @@ int clSliceData::drawLine(int * DataDest, int width, int height, int x1, int y1,
 			SWAP(y1, y2);
 		}
 
-		double d = (double) (x2 - x1) / (y2 - y1); //- Slope
+		double d = (double)(x2 - x1) / (y2 - y1); //- Slope
 
 		double currentX = x1;
 		int tmpY = y1 * width;
@@ -481,26 +491,23 @@ int clSliceData::drawLine(int * DataDest, int width, int height, int x1, int y1,
 			if ((index >= 0) && (index < pixelCount))
 			{
 				//-- DataDest[tmpX,tmpY]
-				if ((tmpX > 0) && (tmpX < width)) 
+				if ((tmpX > 0) && (tmpX < width))
 					*(DataDest + index) = color;
 			}
 
 			currentX += d;
 			tmpY += width;
 		}
-
 	}
-
 
 	return 1;
 }
 
-
-
 //-------------------------------------------------------//
-int clSliceData::addEdgeflag(int * DataDest, int width, int height, int x1, int y1, int x2, int y2, int color)
+int clSliceData::addEdgeflag(int *DataDest, int width, int height, int x1, int y1, int x2, int y2, int color)
 {
-	if (DataDest == 0) return -1;
+	if (DataDest == 0)
+		return -1;
 
 	//- Source: http://hullooo.blogspot.de/2011/02/solid-area-scan-conversion.html
 	int plotx, ploty;
@@ -509,8 +516,8 @@ int clSliceData::addEdgeflag(int * DataDest, int width, int height, int x1, int 
 	int img_w = width;
 	int img_h = height;
 
-	if (y1 == y2) return -5;  // leave horizontal lines
-
+	if (y1 == y2)
+		return -5; // leave horizontal lines
 
 	if (y1 > y2)
 	{
@@ -523,49 +530,51 @@ int clSliceData::addEdgeflag(int * DataDest, int width, int height, int x1, int 
 
 	for (ploty = MAX(y1, 0); ploty < max_y2; ploty++)
 	{
-		slope_inv = (double) (x1 - x2) / (y1 - y2); //- slop
+		slope_inv = (double)(x1 - x2) / (y1 - y2); //- slop
 
 		yintersection = ploty + 0.5;
 		xintersection = x1 + slope_inv * (yintersection - y1);
 
-		plotx = (int) floor(xintersection);
-		if (plotx + 0.5 <= xintersection) plotx++;
+		plotx = (int)floor(xintersection);
+		if (plotx + 0.5 <= xintersection)
+			plotx++;
 
 		// marking the border pixel for each scan line intersecting an edge
-		if (plotx < 0) plotx = 0;
-		if (plotx >= img_w) plotx = img_w - 1;
+		if (plotx < 0)
+			plotx = 0;
+		if (plotx >= img_w)
+			plotx = img_w - 1;
 
 		//-- DataDest[ploty,plotx]
-		int * piont = DataDest + ploty*width + plotx;
+		int *piont = DataDest + ploty * width + plotx;
 
 		*piont = (*piont != color) ? color : 0;
-
 	}
 
 	return 0;
-
 }
 
-
 //-------------------------------------------------------//
-int clSliceData::fillEdgePoly(int * DataDest, int width, int height, int color)
+int clSliceData::fillEdgePoly(int *DataDest, int width, int height, int color)
 {
-	if (DataDest == 0) return -1;
-
+	if (DataDest == 0)
+		return -1;
 
 	bool state = false;
 
-	int * outP = DataDest;
+	int *outP = DataDest;
 
-	//- m_sliceMask füllem
+	//- m_sliceMask fï¿½llem
 	for (int y = height; y > 0; y--)
 	{
 		state = false;
 
 		for (int x = width; x > 0; x--)
 		{
-			if (*outP == color) state = !state;
-			if (state) *outP = color;
+			if (*outP == color)
+				state = !state;
+			if (state)
+				*outP = color;
 			outP++;
 		}
 	}
@@ -573,19 +582,19 @@ int clSliceData::fillEdgePoly(int * DataDest, int width, int height, int color)
 	return 1;
 }
 
-
 //-------------------------------------------------------//
-int clSliceData::fillEdgePolyROI(int * DataDest, int width, int height, int min_x, int min_y, int max_x, int max_y, int color)
+int clSliceData::fillEdgePolyROI(int *DataDest, int width, int height, int min_x, int min_y, int max_x, int max_y, int color)
 {
-	if (DataDest == 0) return -1;
+	if (DataDest == 0)
+		return -1;
 
-	//- Fläche füllen
+	//- Flï¿½che fï¿½llen
 	int x_pos = min_x;
 	bool state = false;
 
-	int * outP = DataDest;
+	int *outP = DataDest;
 
-	//- m_sliceMask füllem
+	//- m_sliceMask fï¿½llem
 	for (int y = min_y; y < max_y; y++)
 	{
 		state = false;
@@ -593,8 +602,10 @@ int clSliceData::fillEdgePolyROI(int * DataDest, int width, int height, int min_
 
 		for (int x = min_x; x < max_x; x++)
 		{
-			if (*outP == color) state = !state;
-			if (state) *outP = color;
+			if (*outP == color)
+				state = !state;
+			if (state)
+				*outP = color;
 			outP++;
 		}
 	}

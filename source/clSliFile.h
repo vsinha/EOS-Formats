@@ -1,7 +1,6 @@
 #ifndef CL_STLFILE_H
 #define CL_STLFILE_H
 
-
 #include "clError.h"
 #include "clFile.h"
 #include "clSliceData.h"
@@ -9,111 +8,106 @@
 
 class clSliFile : public abstractSliceFile
 {
-	public:
-		clSliFile();
-		~clSliFile();
+public:
+	clSliFile();
+	~clSliFile();
 
-		/// <summary>Read and interpret sli-data from File</summary>
-		/// <param name="FileName">Filename of File to read</param>
-		/// <returns>true on success; false on not</returns>
-		bool readFromFile(const char * filename);
+	/// <summary>Read and interpret sli-data from File</summary>
+	/// <param name="FileName">Filename of File to read</param>
+	/// <returns>true on success; false on not</returns>
+	bool readFromFile(const char *filename);
 
-		/// <summary>Read the slice data and add it to the sliceData class</summary>
-		/// <param name="sliceData">sliceData class</param>
-		/// <param name="PartIndex">index of the Part</param>
-		/// <param name="LayerIndex">index of the layer</param>
-		/// <param name="storeAsPartIndex">[optional] Index in [sliceData] to store the data in, use -1 for same as PartIndex</param>
-		/// <returns>true on success; false on not</returns>
-		virtual bool readSliceData(clSliceData * sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex = -1);
+	/// <summary>Read the slice data and add it to the sliceData class</summary>
+	/// <param name="sliceData">sliceData class</param>
+	/// <param name="PartIndex">index of the Part</param>
+	/// <param name="LayerIndex">index of the layer</param>
+	/// <param name="storeAsPartIndex">[optional] Index in [sliceData] to store the data in, use -1 for same as PartIndex</param>
+	/// <returns>true on success; false on not</returns>
+	virtual bool readSliceData(clSliceData *sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex = -1);
 
-		/// <summary>returns the Layer Count of the file</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		int getLayerCount(int PartIndex);
+	/// <summary>returns the Layer Count of the file</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	int getLayerCount(int PartIndex);
 
-		/// <summary>returns the Layer position in [mm] of the sellected part</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		/// <param name="layerIndex">index of the Layer</param>
-		float getLayerPos(int PartIndex, int layerIndex);
+	/// <summary>returns the Layer position in [mm] of the sellected part</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	/// <param name="layerIndex">index of the Layer</param>
+	float getLayerPos(int PartIndex, int layerIndex);
 
-		/// <summary>returns the number of parts in this file</summary>
-		int getPartCount();
+	/// <summary>returns the number of parts in this file</summary>
+	int getPartCount();
 
-		/// <summary>returns the name of the part</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		char * getPartName(int PartIndex);
+	/// <summary>returns the name of the part</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	char *getPartName(int PartIndex);
 
+	/// <summary>returns a string with special propertys to use for this part</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	char *getPartProperty(int PartIndex);
 
-		/// <summary>returns a string with special propertys to use for this part</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		char * getPartProperty(int PartIndex);
+	/// <summary>finds and returns the Layer-Index for a layer position (in [mm])</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	/// <param name="LayerPos">position of the layer in [mm]</param>
+	int getLayerIndexByPos(int PartIndex, float LayerPos);
 
+	/// <summary>returns the top Layer position in [mm]</summary>
+	/// <param name="PartIndex">index of the Part</param>
+	float getMaxLayerPos(int PartIndex);
 
-		/// <summary>finds and returns the Layer-Index for a layer position (in [mm])</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		/// <param name="LayerPos">position of the layer in [mm]</param>
-		int getLayerIndexByPos(int PartIndex, float LayerPos);
+	/// <summary>returns the LayerThickness in [mm]</summary>
+	float getLayerThickness();
 
+	/// <summary>reset</summary>
+	void reset();
 
-		/// <summary>returns the top Layer position in [mm]</summary>
-		/// <param name="PartIndex">index of the Part</param>
-		float getMaxLayerPos(int PartIndex);
+private:
+	struct tyFileHead
+	{
+		char magic[40];
+		int version;	//- version? "v divided by 100 gives the version number. "
+		int int02;		//- Head count ?
+		int HeaderSize; //- Header offset
+		int int05;		//- unknown
+		int int07;		//- unknown
+		int FileSliceDataOffset;
+		int FileIndexPos;
+		char creator[40];
+		int LayerCount;
+		int PolylineCount;
+		int int14; //- unknown
+		float scaleFactor;
 
+		float Dimension_x0; //- Bounding Box
+		float Dimension_x1;
+		float Dimension_y0;
+		float Dimension_y1;
+		float Dimension_z0;
+		float Dimension_z1;
+	};
 
-		/// <summary>returns the LayerThickness in [mm]</summary>
-		float getLayerThickness();
+	tyFileHead m_FileHead;
 
-		/// <summary>reset</summary>
-		void reset();
+	clError m_error;
 
-	private:
-		struct tyFileHead
-		{
-			char magic[40];
-			int version; //- version? "v divided by 100 gives the version number. "
-			int int02; //- Head count ?
-			int HeaderSize; //- Header offset
-			int int05; //- unknown
-			int int07; //- unknown
-			int FileSliceDataOffset;
-			int FileIndexPos;
-			char creator[40];
-			int LayerCount;
-			int PolylineCount;
-			int int14; //- unknown
-			float scaleFactor; 
+	char m_partName[255];
 
-			float Dimension_x0; //- Bounding Box
-			float Dimension_x1;
-			float Dimension_y0;
-			float Dimension_y1;
-			float Dimension_z0;
-			float Dimension_z1;
-		};
+	clFile m_file;
 
-		tyFileHead m_FileHead;
+	struct tyIndexTable
+	{
+		int FileOffset;
+		float layerPos; //- Syntax : $$LAYER/z  - Start of a layer with upper surface at height z (z*units [mm]).
+	};
 
-		clError m_error;
+	tyIndexTable *m_IndexTable;
+	int m_IndexTable_lenght;
+	int m_currentLayerIndex;
 
-		char m_partName[255];
+	bool readIndexTable(int FilePos, int FileOffset, int LayerCount);
+	inline int checkLayerPos(int *minIndex, int *maxIndex, int index2Check, float LayerPos);
 
-		clFile m_file;
-
-		struct tyIndexTable
-		{
-			int FileOffset;
-			float layerPos; //- Syntax : $$LAYER/z  - Start of a layer with upper surface at height z (z*units [mm]).
-		};
-
-		tyIndexTable * m_IndexTable;
-		int m_IndexTable_lenght;
-		int m_currentLayerIndex;
-
-		bool readIndexTable(int FilePos, int FileOffset, int LayerCount);
-		inline int checkLayerPos(int * minIndex, int * maxIndex, int index2Check, float LayerPos);
-
-		float m_LayerThickness;
-		int strIndexOfLast(const char * src, char findChar, int maxScanCount);
+	float m_LayerThickness;
+	int strIndexOfLast(const char *src, char findChar, int maxScanCount);
 };
-
 
 #endif

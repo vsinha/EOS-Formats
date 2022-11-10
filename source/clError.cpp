@@ -1,28 +1,26 @@
 #include "clError.h"
-#include <stdarg.h> 
+#include <stdarg.h>
 
-#pragma warning (push)
+#pragma warning(push)
 #pragma warning(disable : 4996)
-
 
 bool clError::s_hasLastError = false;
 char clError::s_lastError[2048];
 bool clError::s_hasLastDebug = false;
 char clError::s_lastDebug[2048];
 
-
-clError::clError(const char * className)
+clError::clError(const char *className)
 {
 	m_ClassName = className;
 }
 
 //-------------------------------------//
-void clError::AddError(const char * errorString, ...)
+void clError::AddError(const char *errorString, ...)
 {
 	va_list args;
 	va_start(args, errorString);
 
-	char * infoStr = formatError(s_lastError, sizeof(s_lastError), "!Error", m_ClassName, errorString, args);
+	char *infoStr = formatError(s_lastError, sizeof(s_lastError), "!Error", m_ClassName, errorString, args);
 
 	printf("%s\n", infoStr);
 
@@ -31,15 +29,13 @@ void clError::AddError(const char * errorString, ...)
 	va_end(args);
 }
 
-
-
 //-------------------------------------//
-void clError::AddDebug(const char * debugString, ...)
+void clError::AddDebug(const char *debugString, ...)
 {
 	va_list args;
 	va_start(args, debugString);
 
-	char * infoStr = formatError(s_lastDebug, sizeof(s_lastDebug), " Debug", m_ClassName, debugString, args);
+	char *infoStr = formatError(s_lastDebug, sizeof(s_lastDebug), " Debug", m_ClassName, debugString, args);
 
 	printf("%s\n", infoStr);
 
@@ -48,9 +44,8 @@ void clError::AddDebug(const char * debugString, ...)
 	va_end(args);
 }
 
-
 //-------------------------------------//
-char * clError::formatError(char * dest, int destSize, const char* ErrorType, const char* className, const char* outputString, va_list args)
+char *clError::formatError(char *dest, int destSize, const char *ErrorType, const char *className, const char *outputString, va_list args)
 {
 	int startsize = strlen(dest);
 	int sizeofprefix = strlen(ErrorType) + strlen(className) + 20;
@@ -82,29 +77,27 @@ char * clError::formatError(char * dest, int destSize, const char* ErrorType, co
 	return &dest[startsize];
 }
 
-
 //-------------------------------------//
 clError::~clError()
 {
 }
 
-
 //-------------------------------------//
-char * clError::getLastError()
+char *clError::getLastError()
 {
-	if (!clError::s_hasLastError) return NULL;
+	if (!clError::s_hasLastError)
+		return NULL;
 	clError::s_hasLastError = false;
 	return clError::s_lastError;
 }
 
 //-------------------------------------//
-char * clError::getLastDebug()
+char *clError::getLastDebug()
 {
-	if (!clError::s_hasLastDebug) return NULL;
+	if (!clError::s_hasLastDebug)
+		return NULL;
 	clError::s_hasLastDebug = false;
 	return clError::s_lastDebug;
 }
 
-
-
-#pragma warning (pop)
+#pragma warning(pop)

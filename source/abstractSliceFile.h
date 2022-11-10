@@ -6,11 +6,10 @@
 class abstractSliceFile
 {
 public:
-
 	/// <summary>Read and interpret slice-data from File</summary>
 	/// <param name="FileName">Filename to read from</param>
 	/// <returns>true on success; false on not</returns>
-	virtual bool readFromFile(const char * filename) = 0;
+	virtual bool readFromFile(const char *filename) = 0;
 
 	/// <summary>Read the slice data and add it to the sliceData class to the PartIndex index</summary>
 	/// <param name="sliceData">sliceData class</param>
@@ -18,7 +17,7 @@ public:
 	/// <param name="LayerIndex">index of the layer to read</param>
 	/// <param name="storeAsPartIndex">[optional] Index in [sliceData] to store the data in, use -1 for same as PartIndex</param>
 	/// <returns>true on success; false on not</returns>
-	virtual bool readSliceData(clSliceData * sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex = -1) = 0;
+	virtual bool readSliceData(clSliceData *sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex = -1) = 0;
 
 	/// <summary>returns the Layer Count of the file</summary>
 	/// <param name="PartIndex">index of the Part</param>
@@ -31,13 +30,11 @@ public:
 
 	/// <summary>returns the name of the part</summary>
 	/// <param name="PartIndex">index of the Part</param>
-	virtual char * getPartName(int PartIndex) = 0;
-
+	virtual char *getPartName(int PartIndex) = 0;
 
 	/// <summary>returns a string with special propertys to use for this part</summary>
 	/// <param name="PartIndex">index of the Part</param>
-	virtual char * getPartProperty(int PartIndex) = 0;
-	
+	virtual char *getPartProperty(int PartIndex) = 0;
 
 	/// <summary>finds and returns the Layer-Index for a layer position (in [mm])</summary>
 	/// <param name="PartIndex">index of the Part</param>
@@ -51,11 +48,8 @@ public:
 	/// <summary>returns the number of parts in this file</summary>
 	virtual int getPartCount() = 0;
 
-
 	/// <summary>returns the LayerThickness in [mm]</summary>
 	virtual float getLayerThickness() = 0;
-
 };
-
 
 #endif

@@ -1,6 +1,5 @@
 #include "clJobFileInterpreter.h"
 
-
 clJobFileInterpreter::clJobFileInterpreter()
 	: m_error("clJobFileInterpreter")
 {
@@ -23,7 +22,6 @@ clJobFileInterpreter::~clJobFileInterpreter()
 	}
 	m_keys_length = 0;
 
-
 	if (m_values != NULL)
 	{
 		delete[] m_values;
@@ -32,9 +30,8 @@ clJobFileInterpreter::~clJobFileInterpreter()
 	m_values_length = 0;
 }
 
-
 //---------------------------------------------------//
-bool clJobFileInterpreter::readFromFile(const char * filename)
+bool clJobFileInterpreter::readFromFile(const char *filename)
 {
 	if (m_JobFile.readFromFile(filename) == NULL)
 	{
@@ -45,9 +42,8 @@ bool clJobFileInterpreter::readFromFile(const char * filename)
 	return interpret();
 }
 
-
 //---------------------------------------------------//
-bool clJobFileInterpreter::readFromBuffer(const char * buffer, int bufferLength)
+bool clJobFileInterpreter::readFromBuffer(const char *buffer, int bufferLength)
 {
 
 	if (m_JobFile.readFromBuffer(buffer, bufferLength) == NULL)
@@ -59,24 +55,21 @@ bool clJobFileInterpreter::readFromBuffer(const char * buffer, int bufferLength)
 	return interpret();
 }
 
-
 //---------------------------------------------------//
 bool clJobFileInterpreter::interpret()
 {
-	char * pBuffer = m_JobFile.getBuffer();
+	char *pBuffer = m_JobFile.getBuffer();
 	int bufferLen = m_JobFile.getBufferLenght();
-	
+
 	if (pBuffer == NULL)
 	{
 		m_error.AddError("interpret() no data");
 		return false;
 	}
 
-
 	//- first count keys and propertys and create buffers
 	createBuffers(pBuffer, bufferLen);
 
-	
 	//- add root item
 	m_keys_count = 1;
 	m_keys[0].name = (char *)"_root_";
@@ -97,17 +90,16 @@ bool clJobFileInterpreter::interpret()
 	m_values[0].next_property = NULL;
 	m_values[0].index = 0;
 
-
-	char * pLineStart = pBuffer;
+	char *pLineStart = pBuffer;
 	bool isFirstChar = true;
 	int lineLen = 0;
 
 	int parents[100]; //- lookup tabel for parrents
 	//- set lookup-table to root element
-	for (int i = 0; i<100; i++) parents[i] = 0;
+	for (int i = 0; i < 100; i++)
+		parents[i] = 0;
 
 	int currentLeafe = 0;
-
 
 	for (int i = bufferLen; i > 0; i--)
 	{
@@ -129,7 +121,8 @@ bool clJobFileInterpreter::interpret()
 					else
 					{
 						int newDeep = std::atoi(pLineStart + 1);
-						if (newDeep > 99) newDeep = 99;
+						if (newDeep > 99)
+							newDeep = 99;
 
 						if (newDeep > 0) //- every element has to be in the root-element
 						{
@@ -149,9 +142,9 @@ bool clJobFileInterpreter::interpret()
 							m_keys[newKey].first_property = NULL;
 							m_keys[newKey].last_property = NULL;
 
-
 							//- update parrent
-							if (m_keys[newKey].parent->first_client == NULL) m_keys[newKey].parent->first_client = &m_keys[newKey];
+							if (m_keys[newKey].parent->first_client == NULL)
+								m_keys[newKey].parent->first_client = &m_keys[newKey];
 
 							if (m_keys[newKey].parent->last_client == NULL)
 							{
@@ -159,7 +152,7 @@ bool clJobFileInterpreter::interpret()
 							}
 							else
 							{
-								//- update the next-item property of the last item on this level 
+								//- update the next-item property of the last item on this level
 								m_keys[newKey].parent->last_client->next_item = &m_keys[newKey];
 								m_keys[newKey].parent->last_client = &m_keys[newKey];
 							}
@@ -191,12 +184,11 @@ bool clJobFileInterpreter::interpret()
 						//- close the property-value string: "m_value[newValue].value"
 						*pBuffer = '\0';
 
-
 						int newValue = m_values_count;
 						m_values_count++;
 
-						char * value = LTrim(pLineStart + pos + 1);
-						char * comment = NULL;
+						char *value = LTrim(pLineStart + pos + 1);
+						char *comment = NULL;
 
 						int c_pos = findByte(value, lineLen, '#');
 						if (c_pos > 0)
@@ -226,15 +218,14 @@ bool clJobFileInterpreter::interpret()
 						}
 
 						m_keys[currentLeafe].last_property = &m_values[newValue];
-
 					}
 				}
 				//- this is a valid line
 			}
 
-
 			//- is this a "\r\n" ?
-			if ((value == '\r') && (*pBuffer == '\n')) pBuffer++;
+			if ((value == '\r') && (*pBuffer == '\n'))
+				pBuffer++;
 
 			//- next start pos
 			isFirstChar = true;
@@ -256,14 +247,11 @@ bool clJobFileInterpreter::interpret()
 			lineLen++;
 		}
 
-
 		pBuffer++;
 	}
 
-
 	return true;
 }
-
 
 //---------------------------------------------------//
 bool clJobFileInterpreter::printXML()
@@ -277,31 +265,32 @@ bool clJobFileInterpreter::printXML()
 	if (m_keys == NULL)
 	{
 		m_error.AddError("no data in file");
-		return false;	
+		return false;
 	}
 	printXMLout(0, m_keys);
 
 	return true;
 }
 
-
 //---------------------------------------------------//
-void clJobFileInterpreter::printXMLout(int deep, tyConfigKey * key)
+void clJobFileInterpreter::printXMLout(int deep, tyConfigKey *key)
 {
 	char padding[100];
 
-	for (int i = 0; i < deep; i++) padding[i] = '\t';
+	for (int i = 0; i < deep; i++)
+		padding[i] = '\t';
 	padding[deep] = '\0';
 
 	printf("%s<%s>\n", padding, key->name);
 
 	//- print propertys
-	tyConfigValue * value = key->first_property;
+	tyConfigValue *value = key->first_property;
 	while (value != NULL)
 	{
 		printf("%s\t<value name=\"%s\" type=\"%c\" value=\"%s\" ", padding, value->name, value->type, value->value);
-		
-		if (value->comment != NULL) printf("comment=\"%s\" ", value->comment);
+
+		if (value->comment != NULL)
+			printf("comment=\"%s\" ", value->comment);
 
 		printf("/>\n");
 
@@ -309,19 +298,18 @@ void clJobFileInterpreter::printXMLout(int deep, tyConfigKey * key)
 	}
 
 	//- print childs
-	tyConfigKey * child = key->first_client;
+	tyConfigKey *child = key->first_client;
 	while (child != NULL)
 	{
-		printXMLout(deep+1, child);
+		printXMLout(deep + 1, child);
 		child = child->next_item;
 	}
 
 	printf("%s</%s>\n", padding, key->name);
 }
 
-
 //---------------------------------------------------//
-bool clJobFileInterpreter::createBuffers(const char * pBuffer, int bufferLen)
+bool clJobFileInterpreter::createBuffers(const char *pBuffer, int bufferLen)
 {
 	//-------------------
 	//- count keys and propertys
@@ -331,10 +319,12 @@ bool clJobFileInterpreter::createBuffers(const char * pBuffer, int bufferLen)
 	bool doneFirstChar = false;
 
 	//- free old buffers
-	if (m_values != NULL) delete[] m_values;
+	if (m_values != NULL)
+		delete[] m_values;
 	m_values = NULL;
 
-	if (m_keys != NULL) delete[] m_keys;
+	if (m_keys != NULL)
+		delete[] m_keys;
 	m_keys = NULL;
 
 	//- count
@@ -346,7 +336,8 @@ bool clJobFileInterpreter::createBuffers(const char * pBuffer, int bufferLen)
 			doneFirstChar = false;
 
 			//- is this a "\r\n" ?
-			if ((value == '\r') && (*pBuffer == '\n')) pBuffer++;
+			if ((value == '\r') && (*pBuffer == '\n'))
+				pBuffer++;
 		}
 		else if (!doneFirstChar)
 		{
@@ -363,7 +354,6 @@ bool clJobFileInterpreter::createBuffers(const char * pBuffer, int bufferLen)
 				{
 					prop_c++;
 				}
-
 			}
 		}
 
@@ -376,61 +366,62 @@ bool clJobFileInterpreter::createBuffers(const char * pBuffer, int bufferLen)
 	m_values_count = 0;
 
 	m_keys_length = keys_c + 2; //- +1 for root item
-	m_keys = new  tyConfigKey[m_keys_length];
+	m_keys = new tyConfigKey[m_keys_length];
 	m_keys_count = 0;
-	
-
 
 	return true;
 }
 
-
-
 //---------------------------------------------------//
-int clJobFileInterpreter::findByte(const char * pInBuffer, int lineLen, char Byte2Find)
+int clJobFileInterpreter::findByte(const char *pInBuffer, int lineLen, char Byte2Find)
 {
-	const char * pIn = pInBuffer;
+	const char *pIn = pInBuffer;
 
 	for (int i = 0; i < lineLen; i++)
 	{
 		char v = *pIn;
 
-		if (v == Byte2Find) return i;
-		if (v == '\0') return -1;
+		if (v == Byte2Find)
+			return i;
+		if (v == '\0')
+			return -1;
 
 		pIn++;
 	}
 	return -1;
 }
 
-
 //---------------------------------------------------//
-char * clJobFileInterpreter::LTrim(char * buffer)
+char *clJobFileInterpreter::LTrim(char *buffer)
 {
-	char * pIn = buffer;
-	if (pIn == NULL) return NULL;
+	char *pIn = buffer;
+	if (pIn == NULL)
+		return NULL;
 
 	while (*pIn != '\0')
 	{
 		char v = *pIn;
-		if ((v != ' ') && (v != '\t')) return pIn;
+		if ((v != ' ') && (v != '\t'))
+			return pIn;
 		pIn++;
 	}
 	return pIn;
 }
 
 //---------------------------------------------------//
-char * clJobFileInterpreter::RTrim(char * buffer)
+char *clJobFileInterpreter::RTrim(char *buffer)
 {
-	char * pIn = buffer;
-	if (pIn == NULL) return NULL;
+	char *pIn = buffer;
+	if (pIn == NULL)
+		return NULL;
 
-	char * lastChar = pIn;
+	char *lastChar = pIn;
 
 	while (*pIn != '\0')
 	{
 		char v = *pIn;
-		if ((v != ' ') && (v != '\t')) lastChar = pIn;
+		if ((v != ' ') && (v != '\t'))
+			lastChar = pIn;
 		pIn++;
 	}
 
@@ -439,13 +430,12 @@ char * clJobFileInterpreter::RTrim(char * buffer)
 	return pIn;
 }
 
-
-
 //---------------------------------------------------//
-char * clJobFileInterpreter::Trim(char * buffer)
+char *clJobFileInterpreter::Trim(char *buffer)
 {
-	char * pIn = buffer;
-	if (pIn == NULL) return NULL;
+	char *pIn = buffer;
+	if (pIn == NULL)
+		return NULL;
 
 	//- find first non space
 	while (*pIn != '\0')
@@ -460,14 +450,14 @@ char * clJobFileInterpreter::Trim(char * buffer)
 		pIn++;
 	}
 
-
 	//- stripe last emptys
-	char * lastChar = pIn;
+	char *lastChar = pIn;
 
 	while (*pIn != '\0')
 	{
 		char v = *pIn;
-		if ((v != ' ') && (v != '\t')) lastChar = pIn;
+		if ((v != ' ') && (v != '\t'))
+			lastChar = pIn;
 		pIn++;
 	}
 
@@ -477,17 +467,20 @@ char * clJobFileInterpreter::Trim(char * buffer)
 }
 
 //---------------------------------------------------//
-char * clJobFileInterpreter::getKeyName(int id)
+char *clJobFileInterpreter::getKeyName(int id)
 {
-	if ((id < 0) || (id >= m_keys_count)) return NULL;
+	if ((id < 0) || (id >= m_keys_count))
+		return NULL;
 	return m_keys[id].name;
 }
 
 //---------------------------------------------------//
 int clJobFileInterpreter::getFirstChild(int id)
 {
-	if ((id < 0) || (id >= m_keys_count)) return -1;
-	if (m_keys[id].first_client == NULL) return -1;
+	if ((id < 0) || (id >= m_keys_count))
+		return -1;
+	if (m_keys[id].first_client == NULL)
+		return -1;
 
 	return m_keys[id].first_client->index;
 }
@@ -495,38 +488,44 @@ int clJobFileInterpreter::getFirstChild(int id)
 //---------------------------------------------------//
 int clJobFileInterpreter::getNextChild(int id)
 {
-	if ((id < 0) || (id >= m_keys_count)) return -1;
-	if (m_keys[id].next_item == NULL) return -1;
+	if ((id < 0) || (id >= m_keys_count))
+		return -1;
+	if (m_keys[id].next_item == NULL)
+		return -1;
 
 	return m_keys[id].next_item->index;
 }
 
 //---------------------------------------------------//
-int clJobFileInterpreter::getChild(int id, const char * keyName)
+int clJobFileInterpreter::getChild(int id, const char *keyName)
 {
-	if ((id < 0) || (id >= m_keys_count)) return -1;
-	if (m_keys[id].first_client == NULL) return -1;
-
+	if ((id < 0) || (id >= m_keys_count))
+		return -1;
+	if (m_keys[id].first_client == NULL)
+		return -1;
 
 	int key = m_keys[id].first_client->index;
 
 	while (key > 0)
 	{
-		if (_strcmpi(keyName, m_keys[key].name) == 0) return key;
+		if (_strcmpi(keyName, m_keys[key].name) == 0)
+			return key;
 
-		if (m_keys[key].next_item <= 0) return -1;
+		if (m_keys[key].next_item <= 0)
+			return -1;
 		key = m_keys[key].next_item->index;
 	}
 
 	return -1;
 }
 
-
 //---------------------------------------------------//
 int clJobFileInterpreter::getChildCount(int id)
 {
-	if ((id < 0) || (id >= m_keys_count)) return 0;
-	if (m_keys[id].first_client == NULL) return 0;
+	if ((id < 0) || (id >= m_keys_count))
+		return 0;
+	if (m_keys[id].first_client == NULL)
+		return 0;
 
 	int count = 0;
 
@@ -535,7 +534,8 @@ int clJobFileInterpreter::getChildCount(int id)
 	while (key > 0)
 	{
 		count++;
-		if (m_keys[key].next_item <= 0) return count;
+		if (m_keys[key].next_item <= 0)
+			return count;
 		key = m_keys[key].next_item->index;
 	}
 
@@ -543,84 +543,90 @@ int clJobFileInterpreter::getChildCount(int id)
 }
 
 //---------------------------------------------------//
-int clJobFileInterpreter::getProperty(int id, const char * propertyName)
+int clJobFileInterpreter::getProperty(int id, const char *propertyName)
 {
-	if ((id < 0) || (id >= m_keys_count)) return -1;
-	if (m_keys[id].first_property == NULL) return -1;
+	if ((id < 0) || (id >= m_keys_count))
+		return -1;
+	if (m_keys[id].first_property == NULL)
+		return -1;
 
 	int prop = m_keys[id].first_property->index;
 
 	while (prop > 0)
 	{
-		if (_strcmpi(propertyName, m_values[prop].name) == 0) return prop;
-		
-		if (m_values[prop].next_property == NULL) return -1;
+		if (_strcmpi(propertyName, m_values[prop].name) == 0)
+			return prop;
+
+		if (m_values[prop].next_property == NULL)
+			return -1;
 		prop = m_values[prop].next_property->index;
 	}
-
 
 	return -1;
 }
 
-
 //---------------------------------------------------//
 int clJobFileInterpreter::getFirstProperty(int id)
 {
-	if ((id < 0) || (id >= m_keys_count)) return -1;
-	if (m_keys[id].first_property == NULL) return -1;
+	if ((id < 0) || (id >= m_keys_count))
+		return -1;
+	if (m_keys[id].first_property == NULL)
+		return -1;
 
 	return m_keys[id].first_property->index;
 }
 
-
 //---------------------------------------------------//
 int clJobFileInterpreter::getNextProperty(int id)
 {
-	if ((id < 0) || (id >= m_values_count)) return -1;
-	if (m_values[id].next_property == NULL) return -1;
+	if ((id < 0) || (id >= m_values_count))
+		return -1;
+	if (m_values[id].next_property == NULL)
+		return -1;
 
 	return m_values[id].next_property->index;
 }
 
 //---------------------------------------------------//
-char * clJobFileInterpreter::getPropertyName(int id)
+char *clJobFileInterpreter::getPropertyName(int id)
 {
-	if ((id < 0) || (id >= m_values_count)) return NULL;
+	if ((id < 0) || (id >= m_values_count))
+		return NULL;
 	return m_values[id].name;
 }
 
 //---------------------------------------------------//
-char * clJobFileInterpreter::getPropertyValue(int id)
+char *clJobFileInterpreter::getPropertyValue(int id)
 {
-	if ((id < 0) || (id >= m_values_count)) return NULL;
+	if ((id < 0) || (id >= m_values_count))
+		return NULL;
 	return m_values[id].value;
 }
 
 //---------------------------------------------------//
 float clJobFileInterpreter::getPropertyValue(int id, float defaultValue)
 {
-	char * val = getPropertyValue(id);
-	if (val == NULL) return defaultValue;
+	char *val = getPropertyValue(id);
+	if (val == NULL)
+		return defaultValue;
 
-
-	char * e;
+	char *e;
 	errno = 0;
 	float x = (float)std::strtod(val, &e);
 
-	if (*e != '\0' ||  // error, we didn't consume the entire string
-		errno != 0)   // error, overflow or underflow
+	if (*e != '\0' || // error, we didn't consume the entire string
+		errno != 0)	  // error, overflow or underflow
 	{
 		return defaultValue;
 	}
 
-
 	return x;
 }
 
-
 //---------------------------------------------------//
-char * clJobFileInterpreter::getPropertyComment(int id)
+char *clJobFileInterpreter::getPropertyComment(int id)
 {
-	if ((id < 0) || (id >= m_values_count)) return NULL;
+	if ((id < 0) || (id >= m_values_count))
+		return NULL;
 	return m_values[id].comment;
 }

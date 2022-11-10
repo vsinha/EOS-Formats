@@ -6,7 +6,7 @@
 #include "clSliFile.h"
 #include "clJobFileInterpreter.h"
 #include "clFile.h"
-#include <math.h>       // cos, sin
+#include <math.h> // cos, sin
 
 #define PI 3.14159265
 
@@ -20,7 +20,7 @@ public:
 	/// <summary>Read and interpret job-data from File</summary>
 	/// <param name="FileName">Filename of File to read</param>
 	/// <returns>true on success; false on not</returns>
-	bool readFromFile(const char * filename);
+	bool readFromFile(const char *filename);
 
 	/// <summary>Read the slice data and add it to the sliceData class</summary>
 	/// <param name="sliceData">sliceData class</param>
@@ -28,7 +28,7 @@ public:
 	/// <param name="LayerIndex">index of the layer</param>
 	/// <param name="storeAsPartIndex">[optional] Index in [sliceData] to store the data in, use -1 for same as PartIndex</param>
 	/// <returns>true on success; false on not</returns>
-	virtual bool readSliceData(clSliceData * sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex=-1);
+	virtual bool readSliceData(clSliceData *sliceData, int PartIndex, int LayerIndex, int storeAsPartIndex = -1);
 
 	/// <summary>returns the Layer Count of the file</summary>
 	/// <param name="PartIndex">index of the Part</param>
@@ -39,18 +39,16 @@ public:
 	/// <param name="layerIndex">index of the Layer</param>
 	float getLayerPos(int PartIndex, int layerIndex);
 
-
 	/// <summary>returns the name of the part</summary>
 	/// <param name="PartIndex">index of the Part</param>
-	char * getPartName(int PartIndex);
+	char *getPartName(int PartIndex);
 
 	/// <summary>returns a string with special propertys to use for this part</summary>
 	/// <param name="PartIndex">index of the Part</param>
-	char * getPartProperty(int PartIndex);
+	char *getPartProperty(int PartIndex);
 
 	/// <summary>returns the number of parts in this file</summary>
 	int getPartCount();
-
 
 	/// <summary>returns the top Layer position in [mm]</summary>
 	/// <param name="PartIndex">index of the Part</param>
@@ -61,12 +59,10 @@ public:
 	/// <param name="LayerPos">position of the layer in [mm]</param>
 	int getLayerIndexByPos(int PartIndex, float LayerPos);
 
-
 	/// <summary>returns the LayerThickness in [mm]</summary>
 	float getLayerThickness();
 
 private:
-
 	struct tySliFile
 	{
 		char fileName[255];
@@ -76,17 +72,15 @@ private:
 		clSliFile sliFile;
 	};
 
-	tySliFile * m_SliFiles;
+	tySliFile *m_SliFiles;
 	int m_SliFilesCount;
 	float m_LayerThickness;
 
 	clError m_error;
 
-	bool openPartFile(tySliFile * part, const char * jobFileName);
-	char * strCopy(char * dest, const char * src, int maxCopyCount);
-	int strIndexOfLast(const char * src, char findChar, int maxScanCount);
+	bool openPartFile(tySliFile *part, const char *jobFileName);
+	char *strCopy(char *dest, const char *src, int maxCopyCount);
+	int strIndexOfLast(const char *src, char findChar, int maxScanCount);
 };
-
-
 
 #endif

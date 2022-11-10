@@ -1,9 +1,7 @@
 #include "clFile.h"
 
-
-clFile::clFile(const char * FilePath, const char * FileName):
-  m_error("clFile"),
-  m_eof(false)
+clFile::clFile(const char *FilePath, const char *FileName) : m_error("clFile"),
+															 m_eof(false)
 {
 	m_buffer = NULL;
 	m_filesize = 0;
@@ -12,9 +10,7 @@ clFile::clFile(const char * FilePath, const char * FileName):
 	m_eof = true;
 
 	openFile(FilePath, FileName);
-	
 }
-
 
 //---------------------------------------------------//
 clFile::~clFile()
@@ -23,12 +19,12 @@ clFile::~clFile()
 	closeFile();
 }
 
-
 //---------------------------------------------------//
 void clFile::closeFile()
 {
 	//- delete buffer if already used
-	if (m_buffer != NULL) delete m_buffer;
+	if (m_buffer != NULL)
+		delete m_buffer;
 
 	m_buffer = NULL;
 	m_filesize = 0;
@@ -41,25 +37,26 @@ void clFile::closeFile()
 }
 
 //---------------------------------------------------//
-bool clFile::openFile(const char * FileName)
+bool clFile::openFile(const char *FileName)
 {
 	return openFile(NULL, FileName);
 }
 
-
 //---------------------------------------------------//
-bool clFile::fileExist(const char * Filename)
+bool clFile::fileExist(const char *Filename)
 {
 	struct stat buffer;
 	return (stat(Filename, &buffer) == 0);
 }
 
 //---------------------------------------------------//
-bool clFile::openFile(const char * FilePath, const char * FileName)
+bool clFile::openFile(const char *FilePath, const char *FileName)
 {
-	if (FileName == NULL) return false;
+	if (FileName == NULL)
+		return false;
 
-	if (FilePath != NULL) FileName = std::string(FilePath).append(FileName).c_str();
+	if (FilePath != NULL)
+		FileName = std::string(FilePath).append(FileName).c_str();
 
 	m_buffer = NULL;
 	m_bufferLen = 0;
@@ -75,7 +72,7 @@ bool clFile::openFile(const char * FilePath, const char * FileName)
 
 		//- get stream size
 		m_File.seekg(0, m_File.end);
-		m_filesize = (unsigned int) m_File.tellg();
+		m_filesize = (unsigned int)m_File.tellg();
 		m_File.seekg(0, m_File.beg);
 
 		m_eof = false;
@@ -87,11 +84,7 @@ bool clFile::openFile(const char * FilePath, const char * FileName)
 	}
 
 	return true;
-
-	
 }
-
-
 
 //---------------------------------------------------//
 bool clFile::readFilePart(unsigned int offset, int size)
@@ -116,19 +109,18 @@ bool clFile::readFilePart(unsigned int offset, int size)
 			offset = m_fileReadPos; //- use the end-pos of the last read
 		}
 
-
 		if (size < 0)
 		{
 			//- read everything left
 			size = m_filesize - offset;
 		}
 
-
 		//- create buffer
 		if (m_bufferLen < size)
 		{
 			//- delete buffer if already used
-			if (m_buffer != NULL) delete m_buffer;
+			if (m_buffer != NULL)
+				delete m_buffer;
 
 			m_bufferLen = size;
 
@@ -141,7 +133,6 @@ bool clFile::readFilePart(unsigned int offset, int size)
 				return false;
 			}
 		}
-
 
 		//- read over EOF?
 		if (size + offset > m_filesize)
@@ -163,13 +154,12 @@ bool clFile::readFilePart(unsigned int offset, int size)
 	return true;
 }
 
-
 //---------------------------------------------------//
-int clFile::readString(char * destBuffer, int size, int offset)
+int clFile::readString(char *destBuffer, int size, int offset)
 {
 	int readCount = 0;
-	const char * buffer;
-	char * pOut = destBuffer;
+	const char *buffer;
+	char *pOut = destBuffer;
 
 	buffer = readString(&readCount, size, offset);
 
@@ -189,22 +179,22 @@ int clFile::readString(char * destBuffer, int size, int offset)
 	return readCount;
 }
 
-
 //---------------------------------------------------//
-const char * clFile::readString(int * outSize, int size, int offset)
+const char *clFile::readString(int *outSize, int size, int offset)
 {
-	const char * out;
+	const char *out;
 
-	if (offset>-1)
+	if (offset > -1)
 	{
 		m_bufferPos = offset - m_filePos;
 		m_eof = false; //- we do check this later...
 	}
 
 	//- if no size given then return to the end of buffer
-	if (size == -1) size = m_bufferLen - m_bufferPos;
-	if (size < 0) size = 0;
-
+	if (size == -1)
+		size = m_bufferLen - m_bufferPos;
+	if (size < 0)
+		size = 0;
 
 	int ofs = m_bufferPos - m_filePos;
 
@@ -226,7 +216,6 @@ const char * clFile::readString(int * outSize, int size, int offset)
 			size = m_bufferLen - m_bufferPos;
 		}
 
-
 		out = &m_buffer[ofs];
 	}
 	else
@@ -238,37 +227,42 @@ const char * clFile::readString(int * outSize, int size, int offset)
 	}
 	m_bufferPos += size;
 
-	if (outSize != NULL) *outSize = size;
+	if (outSize != NULL)
+		*outSize = size;
 
 	return out;
 }
-
 
 //---------------------------------------------------//
 unsigned int clFile::readIntBE(int size, int offset)
 {
 	int retSize = 0;
-	const char * tmp = readString(&retSize, size, offset);
+	const char *tmp = readString(&retSize, size, offset);
 
-	if (tmp == NULL) return 0;
-	if (retSize == 4) return *((int*) tmp);
-	if (retSize == 2) return ((*((int*) tmp)) & 0x0000FFFF);
-	if (retSize == 1) return ((*((int*) tmp)) & 0x000000FF);
-	if (retSize == 3) return ((*((int*) tmp)) & 0x00FFFFFF);
+	if (tmp == NULL)
+		return 0;
+	if (retSize == 4)
+		return *((int *)tmp);
+	if (retSize == 2)
+		return ((*((int *)tmp)) & 0x0000FFFF);
+	if (retSize == 1)
+		return ((*((int *)tmp)) & 0x000000FF);
+	if (retSize == 3)
+		return ((*((int *)tmp)) & 0x00FFFFFF);
 
 	return 0;
 }
-
 
 //---------------------------------------------------//
 int clFile::readSignedWordBE(int offset)
 {
 	int retSize = 0;
-	const char * tmp = readString(&retSize, 2, offset);
+	const char *tmp = readString(&retSize, 2, offset);
 
-	if (retSize != 2) return 0;
+	if (retSize != 2)
+		return 0;
 
-	return (*((short*) tmp));
+	return (*((short *)tmp));
 }
 
 //---------------------------------------------------//
@@ -276,7 +270,8 @@ float clFile::readFloat(int offset)
 {
 	UNION_FLOAT_2_CHAR destF;
 
-	if (readString((char*) destF.ch, 4, offset) == 4) return destF.f;
+	if (readString((char *)destF.ch, 4, offset) == 4)
+		return destF.f;
 
 	return 0.0f;
 }
