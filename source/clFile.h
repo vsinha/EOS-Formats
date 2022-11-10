@@ -41,7 +41,7 @@ private:
 
 public:
 	// clFile();
-	clFile::clFile(const char *FilePath = NULL, const char *FileName = NULL);
+	clFile(const char *FilePath = NULL, const char *FileName = NULL);
 	~clFile();
 
 	/// <summary>open a File</summary>

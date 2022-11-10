@@ -84,6 +84,11 @@ public:
 	/// <param name="partIndex">index of the Part</param>
 	int getObjectCount(int partIndex);
 
+	/// <summary>returnes the number of coordinate points of the part object [objectIndex]</summary>
+	/// <param name="partIndex">index of the Part</param>
+	/// <param name="objectIndex">index of the polyline or Hatch of the part</param>
+	float getObjectPointCount(int partIndex, int objectIndex);
+
 	/// <summary>returnes the coordinates of the part object [objectIndex]</summary>
 	/// <param name="partIndex">index of the Part</param>
 	/// <param name="objectIndex">index of the polyline or Hatch of the part</param>

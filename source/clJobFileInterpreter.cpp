@@ -1,4 +1,5 @@
 #include "clJobFileInterpreter.h"
+#include <string.h>
 
 clJobFileInterpreter::clJobFileInterpreter()
 	: m_error("clJobFileInterpreter")
@@ -508,10 +509,10 @@ int clJobFileInterpreter::getChild(int id, const char *keyName)
 
 	while (key > 0)
 	{
-		if (_strcmpi(keyName, m_keys[key].name) == 0)
+		if (strcmp(keyName, m_keys[key].name) == 0)
 			return key;
 
-		if (m_keys[key].next_item <= 0)
+		if (m_keys[key].next_item <= (void *)0)
 			return -1;
 		key = m_keys[key].next_item->index;
 	}
@@ -534,7 +535,7 @@ int clJobFileInterpreter::getChildCount(int id)
 	while (key > 0)
 	{
 		count++;
-		if (m_keys[key].next_item <= 0)
+		if (m_keys[key].next_item <= (void *)0)
 			return count;
 		key = m_keys[key].next_item->index;
 	}
@@ -554,7 +555,7 @@ int clJobFileInterpreter::getProperty(int id, const char *propertyName)
 
 	while (prop > 0)
 	{
-		if (_strcmpi(propertyName, m_values[prop].name) == 0)
+		if (strcmp(propertyName, m_values[prop].name) == 0)
 			return prop;
 
 		if (m_values[prop].next_property == NULL)

@@ -95,6 +95,16 @@ bool clSliceData::isHatch(int partIndex, int objectIndex)
 }
 
 //---------------------------------------------------//
+
+float clSliceData::getObjectPointCount(int partIndex, int objectIndex)
+{
+	if ((partIndex < 0) || (partIndex >= m_partCount))
+		return 0;
+	if ((objectIndex < 0) || (objectIndex >= m_parts[partIndex].objectCount))
+		return 0;
+	return m_parts[partIndex].objects[objectIndex].pointCount;
+}
+
 float *clSliceData::getObjectPoints(int partIndex, int objectIndex)
 {
 	if ((partIndex < 0) || (partIndex >= m_partCount))

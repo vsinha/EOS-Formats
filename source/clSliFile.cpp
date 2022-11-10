@@ -200,7 +200,7 @@ char *clSliFile::getPartProperty(int PartIndex)
 {
 	if (PartIndex != 0)
 		return NULL;
-	return "";
+	return (char *)"";
 }
 
 //---------------------------------------------------//
@@ -369,7 +369,7 @@ bool clSliFile::readSliceData(clSliceData *sliceData, int PartIndex, int LayerIn
 
 			if (m_file.readIntBE(1) != 0) //- dir or padding?
 			{
-				m_error.AddError("unknown Byte @ %i " + m_file.getOffset() - 1);
+				m_error.AddError("unknown Byte @ %i ", m_file.getOffset() - 1);
 				return false;
 			}
 
@@ -411,7 +411,7 @@ bool clSliFile::readSliceData(clSliceData *sliceData, int PartIndex, int LayerIn
 			//- padding
 			if (m_file.readIntBE(1) != 0)
 			{
-				m_error.AddError("unknown Byte @ %i " + m_file.getOffset() - 1);
+				m_error.AddError("unknown Byte @ %i ", m_file.getOffset() - 1);
 				return false;
 			}
 

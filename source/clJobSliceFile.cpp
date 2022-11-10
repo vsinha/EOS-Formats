@@ -124,7 +124,7 @@ int clJobSliceFile::getPartCount()
 //------------------------------------------------------------//
 bool clJobSliceFile::openPartFile(tySliFile *part, const char *jobFileName)
 {
-	if ((part == NULL))
+	if (part == NULL)
 		return false;
 	if (part->fileName == NULL)
 		return false;
@@ -210,7 +210,7 @@ bool clJobSliceFile::readSliceData(clSliceData *sliceData, int PartIndex, int La
 char *clJobSliceFile::strCopy(char *dest, const char *src, int maxCount)
 {
 	if (dest == NULL)
-		return "";
+		return (char *)"";
 	*dest = 0;
 	if (src == NULL)
 		return dest;
