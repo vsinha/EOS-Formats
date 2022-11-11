@@ -96,7 +96,7 @@ bool clSliceData::isHatch(int partIndex, int objectIndex)
 
 //---------------------------------------------------//
 
-float clSliceData::getObjectPointCount(int partIndex, int objectIndex)
+int clSliceData::getObjectPointCount(int partIndex, int objectIndex)
 {
 	if ((partIndex < 0) || (partIndex >= m_partCount))
 		return 0;
